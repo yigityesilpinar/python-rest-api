@@ -1,33 +1,17 @@
-from flask import Flask, request
-from flask_smorest import abort
-from uuid import uuid4
-
-venues = {}
-items = {}
+from flask import Flask
+from flask_smorest import Api
+from resources.venue import blp as VenueBlueprint
+from resources.item import blp as ItemBlueprint
 
 app = Flask(__name__)
+app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["API_TITLE"] = "Venues API"
+app.config["API_VERSION"] = "v1"
+app.config["OPENAPI_VERSION"] = "3.0.3"
+app.config["OPENAPI_URL_PREFIX"] = "/"
+app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
+app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
-
-@app.get("/venues")
-def get_user_venues():
-    return venues
-
-
-@app.get("/venue/<string:id>")
-def get_user_venue_by_id(id: str):
-    if id not in venues:
-        abort(404, message="Venue not found")
-    else:
-        return venues[id]
-
-
-@app.post("/venue")
-def create_venue():
-    post_data = request.get_json()
-    if post_data:
-        new_venue_id_uuid = uuid4()
-        new_venue = {"id": new_venue_id_uuid, "name": post_data["name"], "items": []}
-        venues[str(new_venue_id_uuid)] = new_venue
-        return new_venue, 201
-
-    return {}
+api = Api(app)
+api.register_blueprint(VenueBlueprint)
+api.register_blueprint(ItemBlueprint)
