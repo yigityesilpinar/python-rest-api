@@ -8,6 +8,20 @@ If you haven't done yet, create a virtual env
 python3.11 -m venv .venv
 ```
 
+## Dependencies
+
+Update requirements.txt
+
+```
+pip3 freeze > requirements.txt 
+```
+
+## Static type checking
+
+```
+mypy app.py 
+```
+
 ## Docker
 
 Build a local docker image

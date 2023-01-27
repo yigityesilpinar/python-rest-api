@@ -2,8 +2,10 @@ from uuid import uuid4
 from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from db import venues
-from schemas import VenueSchema
+from schemas import VenueSchema, UpdateVenueSchema
+from sqlalchemy.exc import SQLAlchemyError
+from models import VenueModel
+from db import db
 
 
 blp = Blueprint("venues", __name__, description="Operations on venues")
@@ -13,36 +15,41 @@ blp = Blueprint("venues", __name__, description="Operations on venues")
 class Venue(MethodView):
     @blp.response(200, VenueSchema)
     def get(self, venue_id):
-        if venue_id not in venues:
-            abort(404, message="Venue not found")
+        venue = VenueModel.query.get_or_404(venue_id)
+        return venue
+
+    @blp.arguments(UpdateVenueSchema)
+    @blp.response(200, VenueSchema)
+    def put(self, venue_update, venue_id):
+        venue = VenueModel.query.get(venue_id)
+        if venue:
+            venue.name = venue_update["name"]
         else:
-            return venues[venue_id]
+            venue = VenueModel(id=venue_id, **venue_update)
+        db.session.add(venue)
+        db.session.commit()
+        return venue
 
     def delete(self, venue_id):
-        if venue_id not in venues:
-            abort(404, message="Venue not found")
-        else:
-            del venues[venue_id]
-            return {"message": f"Venue id: {venue_id} is deleted"}
+        venue = VenueModel.query.get_or_404(venue_id)
+        db.session.delete(venue)
+        db.session.commit()
+        return {"message": "Venue deleted!"}
 
 
 @blp.route("/venue")
 class VenueList(MethodView):
     @blp.response(200, VenueSchema(many=True))
     def get(self):
-        return venues.values()
+        return VenueModel.query.all()
 
-    @blp.response(201, VenueSchema)
     @blp.arguments(VenueSchema)
-    def post(self, post_data):
-        if post_data:
-            new_venue_id_uuid = uuid4()
-            new_venue = {
-                "id": new_venue_id_uuid,
-                "name": post_data["name"],
-                "items": [],
-            }
-            venues[str(new_venue_id_uuid)] = new_venue
-            return new_venue, 201
-
-        return {}
+    @blp.response(201, VenueSchema)
+    def post(self, venue_data):
+        venue = VenueModel(**venue_data)
+        try:
+            db.session.add(venue)
+            db.session.commit()
+        except SQLAlchemyError:
+            abort(500, message="An error occured on instert venue")
+        return venue
