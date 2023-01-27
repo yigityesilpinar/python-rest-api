@@ -1,5 +1,3 @@
-from uuid import uuid4
-from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from schemas import VenueSchema, UpdateVenueSchema
@@ -51,5 +49,5 @@ class VenueList(MethodView):
             db.session.add(venue)
             db.session.commit()
         except SQLAlchemyError:
-            abort(500, message="An error occured on instert venue")
+            abort(500, message="An error occured on insert venue")
         return venue

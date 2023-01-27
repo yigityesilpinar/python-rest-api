@@ -18,3 +18,4 @@ coverage.xml
 
 # Local dbs
 data.db
+/instance/

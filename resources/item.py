@@ -1,6 +1,3 @@
-import json
-from uuid import uuid4
-from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import SQLAlchemyError
@@ -53,5 +50,5 @@ class ItemList(MethodView):
             db.session.add(item)
             db.session.commit()
         except SQLAlchemyError:
-            abort(500, message="An error occured on instert item")
+            abort(500, message="An error occured on insert item")
         return item
