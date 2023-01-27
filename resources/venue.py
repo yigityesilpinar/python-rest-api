@@ -3,6 +3,7 @@ from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from db import venues
+from schemas import VenueSchema
 
 
 blp = Blueprint("venues", __name__, description="Operations on venues")
@@ -10,6 +11,7 @@ blp = Blueprint("venues", __name__, description="Operations on venues")
 
 @blp.route("/venue/<string:venue_id>")
 class Venue(MethodView):
+    @blp.response(200, VenueSchema)
     def get(self, venue_id):
         if venue_id not in venues:
             abort(404, message="Venue not found")
@@ -26,11 +28,13 @@ class Venue(MethodView):
 
 @blp.route("/venue")
 class VenueList(MethodView):
+    @blp.response(200, VenueSchema(many=True))
     def get(self):
-        return venues
+        return venues.values()
 
-    def post(self):
-        post_data = request.get_json()
+    @blp.response(201, VenueSchema)
+    @blp.arguments(VenueSchema)
+    def post(self, post_data):
         if post_data:
             new_venue_id_uuid = uuid4()
             new_venue = {
