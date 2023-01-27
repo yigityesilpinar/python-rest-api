@@ -9,7 +9,7 @@ from db import db
 blp = Blueprint("venues", __name__, description="Operations on venues")
 
 
-@blp.route("/venue/<string:venue_id>")
+@blp.route("/venue/<int:venue_id>")
 class Venue(MethodView):
     @blp.response(200, VenueSchema)
     def get(self, venue_id):

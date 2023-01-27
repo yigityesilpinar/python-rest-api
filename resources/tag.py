@@ -9,7 +9,7 @@ from db import db
 blp = Blueprint("tags", __name__, description="Operations on tags")
 
 
-@blp.route("/tag/<string:tag_id>")
+@blp.route("/tag/<int:tag_id>")
 class Tag(MethodView):
     @blp.response(200, TagSchema)
     def get(self, tag_id):
@@ -39,7 +39,7 @@ class Tag(MethodView):
             abort(400, message="Tag can not be deleted since its linked to items")
 
 
-@blp.route("/venue/<string:venue_id>/tag")
+@blp.route("/venue/<int:venue_id>/tag")
 class TagsInVenue(MethodView):
     @blp.response(200, TagSchema(many=True))
     def get(self, venue_id):
@@ -58,7 +58,7 @@ class TagsInVenue(MethodView):
         return tag
 
 
-@blp.route("/item/<string:item_id>/tag/<string:tag_id>")
+@blp.route("/item/<int:item_id>/tag/<int:tag_id>")
 class LinkTagToItem(MethodView):
     @blp.response(201, TagSchema)
     def post(self, item_id, tag_id):

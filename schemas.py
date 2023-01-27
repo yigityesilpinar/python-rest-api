@@ -43,7 +43,14 @@ class UpdateItemSchema(Schema):
 class UpdateVenueSchema(Schema):
     name = fields.Str()
 
-class TagAndItemSchema(Schema):
+
+class TagAndItemSchema(Schema): 
     message = fields.Str()
     tag = fields.Nested(TagSchema)
     item = fields.Nested(ItemSchema)
+
+
+class UserSchema(Schema):
+    id = fields.Int(dump_only=True)
+    username = fields.Str(required=True)
+    password = fields.Str(required=True, load_only=True)
