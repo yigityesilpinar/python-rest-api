@@ -6,4 +6,4 @@ class VenueModel(db.Model):  # type: ignore
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
-    items = db.relationship("ItemModel", back_populates="venue", lazy="dynamic")
+    items = db.relationship("ItemModel", back_populates="venue", lazy="dynamic", cascade="all, delete")
