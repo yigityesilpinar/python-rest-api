@@ -5,7 +5,13 @@ from schemas import UserSchema
 from models import UserModel
 from db import db
 from passlib.hash import pbkdf2_sha256
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    jwt_required,
+    get_jwt,
+    get_jwt_identity,
+)
 from config.blocklist import BLOCKLIST
 
 blp = Blueprint("users", __name__, description="Operations on users")
@@ -36,10 +42,26 @@ class UserLogin(MethodView):
             UserModel.username == user_data["username"]
         ).first()
         if user and pbkdf2_sha256.verify(user_data["password"], user.password):
-            access_token = create_access_token(identity=user.id)
-            return {"access_token": access_token}
+            access_token = create_access_token(identity=user.id, fresh=True)
+            refresh_token = create_refresh_token(identity=user.id)
+            return {"access_token": access_token, "refresh_token": refresh_token}
         else:
             abort(401, message="Invalid credentials")
+
+
+@blp.route("/refresh")
+class UserRefreshToken(MethodView):
+    @jwt_required(refresh=True)
+    def post(self):
+        user_id = get_jwt_identity()
+        refreshed_access_token = create_access_token(user_id, fresh=False)
+        new_refresh_token = create_refresh_token(identity=user_id)
+        jti = get_jwt()["jti"]
+        BLOCKLIST.add(jti)
+        return {
+            "access_token": refreshed_access_token,
+            "refresh_token": new_refresh_token,
+        }
 
 
 @blp.route("/logout")
@@ -58,7 +80,7 @@ class User(MethodView):
         user = UserModel.query.get_or_404(user_id)
         return user
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def delete(self, user_id):
         user = UserModel.query.get_or_404(user_id)
         db.session.delete(user)
