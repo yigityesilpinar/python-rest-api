@@ -47,3 +47,24 @@ or using the dev bash script
 ```
 ./dev
 ```
+
+## Migrations
+
+setup initial migrations
+
+```
+flask db init
+```
+
+generate migration files
+
+```
+flask db migrate
+```
+
+apply migration
+
+```
+flask db upgrade
+```
+
