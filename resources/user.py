@@ -5,7 +5,8 @@ from schemas import UserSchema
 from models import UserModel
 from db import db
 from passlib.hash import pbkdf2_sha256
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt
+from config.blocklist import BLOCKLIST
 
 blp = Blueprint("users", __name__, description="Operations on users")
 
@@ -41,6 +42,15 @@ class UserLogin(MethodView):
             abort(401, message="Invalid credentials")
 
 
+@blp.route("/logout")
+class UserLogout(MethodView):
+    @jwt_required()
+    def post(self):
+        jti = get_jwt().get("jti")
+        BLOCKLIST.add(jti)
+        return {"message": "Successfully logged out!"}
+
+
 @blp.route("/user/<int:user_id>")
 class User(MethodView):
     @blp.response(200, UserSchema)
@@ -48,6 +58,7 @@ class User(MethodView):
         user = UserModel.query.get_or_404(user_id)
         return user
 
+    @jwt_required()
     def delete(self, user_id):
         user = UserModel.query.get_or_404(user_id)
         db.session.delete(user)

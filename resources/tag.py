@@ -1,6 +1,7 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import SQLAlchemyError
+from flask_jwt_extended import jwt_required
 from schemas import TagSchema, TagAndItemSchema, PlainTagSchema
 from models import TagModel, VenueModel, ItemModel
 from db import db
@@ -41,6 +42,7 @@ class Tag(MethodView):
 
 @blp.route("/venue/<int:venue_id>/tag")
 class TagsInVenue(MethodView):
+    @jwt_required()
     @blp.response(200, TagSchema(many=True))
     def get(self, venue_id):
         venue = VenueModel.query.get_or_404(venue_id)
