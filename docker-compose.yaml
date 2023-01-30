@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  python-rest-api:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on: 
+      - worker-email-queue
+    image: python-rest-api:latest
+    working_dir: /app
+    volumes:
+      - ".:/app"
+    container_name: container-python-rest-api
+    command: "flask run --host 0.0.0.0" 
+  worker-email-queue:
+    build: .
+    image: python-rest-api:latest
+    working_dir: /app
+    depends_on:
+      - redis-queue
+    links:
+      - redis-queue
+    volumes:
+      - ".:/app"
+    container_name: container-python-rest-api-email-queue-worker
+    command: "rq worker -u ${TASK_QUEUE_REDIS_URL} emails"
+  redis-queue:
+    image: redis:7.0.8-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    # save 1 or more writes every 20 seconds to disk in case the server restarts
+    command: redis-server --bind 0.0.0.0 --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes: 
+      - cache:/data
+volumes:
+  cache:
+    driver: local
+
