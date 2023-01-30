@@ -1,3 +1,5 @@
+import requests
+import os
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import IntegrityError
@@ -17,19 +19,43 @@ from config.blocklist import BLOCKLIST
 blp = Blueprint("users", __name__, description="Operations on users")
 
 
+def send_simple_message(to: str, subject: str, body: str):
+    domain = os.getenv("MAILGUN_DOMAIN")
+    api_key = os.getenv("MAILGUN_API_KEY")
+    if not api_key:
+        raise RuntimeError("MAILGUN_API_KEY must be provided")
+    if not domain:
+        raise RuntimeError("MAILGUN_DOMAIN must be provided")
+    return requests.post(
+        f"https://api.mailgun.net/v3/{domain}/messages",
+        auth=("api", api_key),
+        data={
+            "from": f"<postmaster@{domain}>",
+            "to": [to],
+            "subject": subject,
+            "text": body,
+        },
+    )
+
+
 @blp.route("/register")
 class UserRegister(MethodView):
     @blp.arguments(UserSchema)
     def post(self, user_data):
         try:
             user = UserModel(
-                username=user_data["username"],
+                email=user_data["email"],
                 password=pbkdf2_sha256.hash(user_data["password"]),
             )
             db.session.add(user)
             db.session.commit()
+            send_simple_message(
+                to=user.email,
+                subject="Succesfully signed up!",
+                body="Welcome to our app!",
+            )
         except IntegrityError:
-            abort(409, message="username already exist")
+            abort(409, message="email already exist")
         else:
             return {"message": "User created."}, 201
 
@@ -38,9 +64,7 @@ class UserRegister(MethodView):
 class UserLogin(MethodView):
     @blp.arguments(UserSchema)
     def post(self, user_data):
-        user = UserModel.query.filter(
-            UserModel.username == user_data["username"]
-        ).first()
+        user = UserModel.query.filter(UserModel.email == user_data["email"]).first()
         if user and pbkdf2_sha256.verify(user_data["password"], user.password):
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(identity=user.id)
@@ -73,15 +97,18 @@ class UserLogout(MethodView):
         return {"message": "Successfully logged out!"}
 
 
-@blp.route("/user/<int:user_id>")
+@blp.route("/user")
 class User(MethodView):
     @blp.response(200, UserSchema)
-    def get(self, user_id):
+    @jwt_required()
+    def get(self):
+        user_id = get_jwt_identity()
         user = UserModel.query.get_or_404(user_id)
         return user
 
     @jwt_required(fresh=True)
-    def delete(self, user_id):
+    def delete(self):
+        user_id = get_jwt_identity()
         user = UserModel.query.get_or_404(user_id)
         db.session.delete(user)
         db.session.commit()
