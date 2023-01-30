@@ -22,3 +22,6 @@ coverage.xml
 # Local dbs
 data.db
 /instance/
+
+# OS files
+.DS_Store

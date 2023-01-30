@@ -1,5 +1,4 @@
-import requests
-import os
+from flask import current_app
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import IntegrityError
@@ -15,27 +14,9 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 from config.blocklist import BLOCKLIST
+from tasks import send_user_registration_message
 
 blp = Blueprint("users", __name__, description="Operations on users")
-
-
-def send_simple_message(to: str, subject: str, body: str):
-    domain = os.getenv("MAILGUN_DOMAIN")
-    api_key = os.getenv("MAILGUN_API_KEY")
-    if not api_key:
-        raise RuntimeError("MAILGUN_API_KEY must be provided")
-    if not domain:
-        raise RuntimeError("MAILGUN_DOMAIN must be provided")
-    return requests.post(
-        f"https://api.mailgun.net/v3/{domain}/messages",
-        auth=("api", api_key),
-        data={
-            "from": f"<postmaster@{domain}>",
-            "to": [to],
-            "subject": subject,
-            "text": body,
-        },
-    )
 
 
 @blp.route("/register")
@@ -49,11 +30,7 @@ class UserRegister(MethodView):
             )
             db.session.add(user)
             db.session.commit()
-            send_simple_message(
-                to=user.email,
-                subject="Succesfully signed up!",
-                body="Welcome to our app!",
-            )
+            current_app.queue.enqueue(send_user_registration_message, user.email)  # type: ignore
         except IntegrityError:
             abort(409, message="email already exist")
         else:

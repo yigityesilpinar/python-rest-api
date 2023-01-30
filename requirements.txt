@@ -1,5 +1,6 @@
 alembic==1.9.2
 apispec==6.0.2
+async-timeout==4.0.2
 black==22.12.0
 certifi==2022.12.7
 charset-normalizer==3.0.1
@@ -26,7 +27,9 @@ platformdirs==2.6.2
 psycopg2==2.9.5
 PyJWT==2.6.0
 python-dotenv==0.21.1
+redis==4.4.2
 requests==2.28.2
+rq==1.12.0
 SQLAlchemy==2.0.0
 sqlalchemy-stubs==0.4
 typing_extensions==4.4.0
