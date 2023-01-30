@@ -15,6 +15,7 @@ from flask_jwt_extended import (
 )
 from config.blocklist import BLOCKLIST
 from tasks import send_user_registration_message
+from config.features import is_background_worker_enabled
 
 blp = Blueprint("users", __name__, description="Operations on users")
 
@@ -30,7 +31,8 @@ class UserRegister(MethodView):
             )
             db.session.add(user)
             db.session.commit()
-            current_app.queue.enqueue(send_user_registration_message, user.email)  # type: ignore
+            if is_background_worker_enabled():
+                current_app.queue.enqueue(send_user_registration_message, user.email)  # type: ignore
         except IntegrityError:
             abort(409, message="email already exist")
         else:
