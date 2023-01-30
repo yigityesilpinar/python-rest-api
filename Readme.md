@@ -36,17 +36,12 @@ Run a local container
 docker run -p 5000:5000 --name container-python-rest-api python-rest-api:latest
 ```
 
-Run dev mode in docker
+Run dev containers with docker-compose
 
 ```
-docker run -p 5000:5000 -w /app -v "$(pwd):/app" --name container-python-rest-api python-rest-api:latest
+docker-compose up
 ```
 
-or using the dev bash script
-
-```
-./dev
-```
 
 ## Migrations
 
@@ -66,5 +61,21 @@ apply migration
 
 ```
 flask db upgrade
+```
+
+## DotEnv File
+
+You will need to create and file a '.env' file. Here are sample values:
+
+```
+MAILGUN_API_KEY=
+MAILGUN_DOMAIN=
+REDIS_PASSWORD=VfpFtOFGxx0BRYJ6WH5IZNEWBzcuZtJ9
+TASK_QUEUE_REDIS_URL=redis://:VfpFtOFGxx0BRYJ6WH5IZNEWBzcuZtJ9@redis-queue:6379
+USE_BACKGROUND_WORKER=true
+POSTGRES_USER=POSTGRES_USER
+POSTGRES_PASSWORD=POSTGRES_PASSWORD
+POSTGRES_DB=POSTGRES_DB
+DATABASE_URL=postgresql://POSTGRES_USER:POSTGRES_PASSWORD@db:5432/POSTGRES_DB
 ```
 
