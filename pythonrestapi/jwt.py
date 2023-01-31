@@ -1,14 +1,10 @@
 import os
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
-from config.blocklist import BLOCKLIST
+from pythonrestapi.blocklist import BLOCKLIST
 
 
-def configure_jwt(app: Flask, jwt_secret_key):
-    # JWT
-    app.config["JWT_SECRET_KEY"] = jwt_secret_key or os.getenv(
-        "JWT_SECRET_KEY", "165190795513706400064441539426923149524"
-    )
+def configure_jwt(app: Flask):
     jwt = JWTManager(app)
 
     @jwt.token_in_blocklist_loader

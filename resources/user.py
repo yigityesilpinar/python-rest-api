@@ -13,9 +13,9 @@ from flask_jwt_extended import (
     get_jwt,
     get_jwt_identity,
 )
-from config.blocklist import BLOCKLIST
+from pythonrestapi.blocklist import BLOCKLIST
 from tasks import send_user_registration_message
-from config.features import is_background_worker_enabled
+from pythonrestapi.features import is_background_worker_enabled
 
 blp = Blueprint("users", __name__, description="Operations on users")
 
