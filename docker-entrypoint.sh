@@ -1,5 +1,5 @@
 #!/bin/bash
 
-flask db upgrade
+poetry run flask db upgrade
 
-exec gunicorn --bind  0.0.0.0:80 "app:create_app()"
+exec poetry run gunicorn --bind  0.0.0.0:80 "app:create_app()"

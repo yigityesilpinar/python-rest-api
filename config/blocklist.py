@@ -6,5 +6,7 @@ app and the logout resource so that tokens can be added to the blocklist when th
 user logs out.
 """
 
+from typing import Set
+
 # TODO: move it to redis
-BLOCKLIST = set()
+BLOCKLIST: Set[str] = set()

@@ -8,9 +8,7 @@ class ItemModel(db.Model):  # type: ignore
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.String(80))
     price = db.Column(db.Integer)
-    venue_id = db.Column(
-        db.Integer, db.ForeignKey("venues.id"), unique=False, nullable=False
-    )
+    venue_id = db.Column(db.Integer, db.ForeignKey("venues.id"), unique=False, nullable=False)
     venue = db.relationship(
         "VenueModel",
         back_populates="items",

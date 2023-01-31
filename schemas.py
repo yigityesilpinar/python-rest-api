@@ -44,7 +44,7 @@ class UpdateVenueSchema(Schema):
     name = fields.Str()
 
 
-class TagAndItemSchema(Schema): 
+class TagAndItemSchema(Schema):
     message = fields.Str()
     tag = fields.Nested(TagSchema)
     item = fields.Nested(ItemSchema)

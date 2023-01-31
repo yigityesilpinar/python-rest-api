@@ -6,9 +6,7 @@ class TagModel(db.Model):  # type: ignore
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
-    venue_id = db.Column(
-        db.Integer, db.ForeignKey("venues.id"), unique=False, nullable=False
-    )
+    venue_id = db.Column(db.Integer, db.ForeignKey("venues.id"), unique=False, nullable=False)
     venue = db.relationship(
         "VenueModel",
         back_populates="tags",

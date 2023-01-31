@@ -10,38 +10,48 @@ python3.11 -m venv .venv
 
 ## Dependencies
 
-Update requirements.txt
+Install poetry
 
 ```
-pip3 freeze > requirements.txt 
+pip install -U pip setuptools
+pip install poetry
 ```
 
-## Static type checking
+See [instructions](https://python-poetry.org/docs/#oh-my-zsh) for shell autocomplete.
+
+Install deps
 
 ```
-mypy app.py 
+poetry install --no-root
+```
+
+## Types & Code style
+
+Static type checking
+
+```
+poetry run mypy .
+```
+
+Code formatting
+
+```
+poetry run black .
 ```
 
 ## Docker
 
-Build a local docker image
+Build local docker images
 
 ```
- docker build -t python-rest-api .
+docker-compose build
 ```
 
-Run a local container
-
-```
-docker run -p 5000:5000 --name container-python-rest-api python-rest-api:latest
-```
-
-Run dev containers with docker-compose
+Run dev containers
 
 ```
 docker-compose up
 ```
-
 
 ## Migrations
 
@@ -78,4 +88,3 @@ POSTGRES_PASSWORD=POSTGRES_PASSWORD
 POSTGRES_DB=POSTGRES_DB
 DATABASE_URL=postgresql://POSTGRES_USER:POSTGRES_PASSWORD@db:5432/POSTGRES_DB
 ```
-

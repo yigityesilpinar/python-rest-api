@@ -11,7 +11,7 @@ services:
     volumes:
       - ".:/app"
     container_name: container-python-rest-api
-    command: "flask run --host 0.0.0.0" 
+    command: "poetry run flask run --host 0.0.0.0" 
   db:
     image: postgres:15.1-alpine
     volumes:
@@ -29,7 +29,7 @@ services:
     volumes:
       - ".:/app"
     container_name: container-python-rest-api-email-queue-worker
-    command: "rq worker -u ${TASK_QUEUE_REDIS_URL} emails"
+    command: "poetry run rq worker -u ${TASK_QUEUE_REDIS_URL} emails"
   redis-queue:
     image: redis:7.0.8-alpine
     restart: always
