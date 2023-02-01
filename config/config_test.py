@@ -1,9 +1,7 @@
 import os
 
-ENV_NAME = "test"
-DB_NAME = "test_db"
+assert os.getenv("ENV_NAME") == "test"
+ENV_NAME = os.getenv("ENV_NAME")
 
 DEBUG = False
 TESTING = True
-
-DATABASE_URL = os.getenv("TEST_DATABASE_URL")
