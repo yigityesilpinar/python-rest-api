@@ -8,6 +8,8 @@ class TestUserResources:
             headers={"Content-type": "application/json"},
             json={"email": "yigityesilpinar@gmail.com", "password": "1234tamam"},
         )
-        assert resp.status_code == 409
-        data = resp.json()
-        print("\ndata: ", data)
+        assert resp.status_code == 201
+        response_data = resp.json()
+        assert response_data == dict(
+            message="User created.",
+        )

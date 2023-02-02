@@ -37,6 +37,10 @@ shell:  ## Spawn shell inside python-rest-api container
 logs:  ## View python-rest-api logs
 	@docker-compose logs python-rest-api
 
-.PHONY: test_all
+.PHONY: upgrade_db
+upgrade_db: ## Apply db migrations from within the container
+	@docker-compose exec python-rest-api poetry run flask db upgrade
+
+.PHONY: upgrade_db test_all
 test_all:  ## Run all tests
 	@docker-compose exec python-rest-api poetry run pytest --durations $(TOP_SLOW) -s tests/**
